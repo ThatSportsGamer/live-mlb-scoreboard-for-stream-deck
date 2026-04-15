@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>MLB Scoreboard Settings</title>
+    <style>
+        :root {
+            --bg:        #1e1e1e;
+            --surface:   #2c2c2c;
+            --border:    #444;
+            --text:      #d4d4d4;
+            --accent:    #002D62;
+            --accent-hi: #C0392B;
+            --radius:    6px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 13px;
+            padding: 12px;
+        }
+
+        h2 {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #fff;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            color: #aaa;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        select {
+            width: 100%;
+            padding: 7px 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 13px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23aaa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            margin-bottom: 14px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent-hi);
+        }
+
+        .info-box {
+            padding: 9px 11px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent-hi);
+            border-radius: var(--radius);
+            font-size: 11px;
+            color: #999;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .info-box strong { color: var(--text); }
+
+        .note-box {
+            padding: 9px 11px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid #555;
+            border-radius: var(--radius);
+            font-size: 11px;
+            color: #888;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<h2>⚾ Live MLB Scoreboard</h2>
+
+<label for="linkType">Button Press Opens</label>
+<select id="linkType">
+    <option value="gameday">MLB Gameday (free)</option>
+    <option value="tv">MLB.tv (subscription)</option>
+</select>
+
+<div class="info-box">
+    <strong>How it works:</strong><br>
+    • Place this action on as many keys as you want<br>
+    • Games fill in top-to-bottom, left-to-right by start time<br>
+    • All buttons refresh automatically every <strong>30 seconds</strong><br>
+    • Press any button to open that game<br>
+    • This setting applies to <strong>all</strong> scoreboard buttons
+</div>
+
+<div class="note-box">
+    A full regular season day has up to <strong>15 games</strong> — the Stream Deck XL (32 keys) or a virtual Stream Deck works great for this.<br><br>
+    During <strong>Spring Training</strong>, Split Squad games may push the total above 15. Consider adding extra keys to make sure you catch every game.
+</div>
+
+<script>
+    var websocket  = null;
+    var piUUID     = null;
+    var actionUUID = null;
+
+    function connectElgatoStreamDeckSocket(port, propertyInspectorUUID, registerEvent, info, actionInfo) {
+        piUUID = propertyInspectorUUID;
+        try { actionUUID = JSON.parse(actionInfo).action; } catch(e) {}
+
+        websocket = new WebSocket('ws://127.0.0.1:' + port);
+
+        websocket.onopen = function() {
+            websocket.send(JSON.stringify({ event: registerEvent, uuid: propertyInspectorUUID }));
+            websocket.send(JSON.stringify({ event: 'getSettings', context: propertyInspectorUUID }));
+        };
+
+        websocket.onmessage = function(evt) {
+            try {
+                var data = JSON.parse(evt.data);
+                if (data.event === 'didReceiveSettings') {
+                    var s = data.payload && data.payload.settings;
+                    if (s && s.linkType) document.getElementById('linkType').value = s.linkType;
+                }
+            } catch(e) {}
+        };
+    }
+
+    function saveSettings() {
+        if (!websocket || !piUUID) return;
+        var settings = { linkType: document.getElementById('linkType').value };
+        websocket.send(JSON.stringify({ event: 'setSettings',  context: piUUID, payload: settings }));
+        websocket.send(JSON.stringify({ event: 'sendToPlugin', context: piUUID, action: actionUUID,
+            payload: { event: 'settingsChanged', settings: settings } }));
+    }
+
+    document.getElementById('linkType').addEventListener('change', saveSettings);
+</script>
+
+<div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #444; text-align: center; color: #666; font-size: 10px; line-height: 1.5;">
+    Created by T.J. Lauerman<br>aka ThatSportsGamer
+</div>
+
+</body>
+</html>
