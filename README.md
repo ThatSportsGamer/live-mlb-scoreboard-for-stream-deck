@@ -65,8 +65,6 @@ During **Spring Training**, Split Squad days can push the total above 15 — con
 
 ## What the Buttons Show
 
-![Scoreboard in action](screenshots/LiveMLBScoreboardInAction.png)
-
 **Before the game:**
 ```
 NYM @ LAD
