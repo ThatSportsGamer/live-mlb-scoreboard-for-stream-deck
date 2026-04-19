@@ -70,6 +70,8 @@ During **Spring Training**, Split Squad days can push the total above 15 — con
 - Pre-game rain delay displays DELAY in blue
 - Mid-game rain delay keeps the current score visible with DELAY in blue where the inning indicator normally sits
 
+*Note: v1.0.1 was an internal build — all changes are included here.*
+
 **v1.0.1**
 - Inning indicator and "Final" label now display in yellow
 - End-of-game fireworks animation with the winning team's name and colors
