@@ -4,7 +4,7 @@
 
 A Stream Deck plugin that displays today's full MLB schedule across multiple buttons — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 10 or more keys.
 
-![Stream Deck Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.0-green)
+![Stream Deck Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.1-green)
 
 ---
 
@@ -60,6 +60,14 @@ That's it. All buttons will populate within a few seconds and refresh automatica
 A full regular season day has up to **15 games**. The Stream Deck XL (32 keys) gives you plenty of room. A virtual Stream Deck works great too.
 
 During **Spring Training**, Split Squad days can push the total above 15 — consider adding extra keys to make sure you catch every game.
+
+---
+
+## Recent Updates
+
+**v1.0.1**
+- Inning indicator and "Final" label now display in yellow
+- End-of-game fireworks animation with the winning team's name and colors
 
 ---
 
