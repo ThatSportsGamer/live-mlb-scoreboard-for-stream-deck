@@ -132,6 +132,12 @@ Bug reports and feature requests are welcome — open an [Issue](../../issues) t
 
 ---
 
+## Disclaimer
+
+This plugin is not affiliated with, endorsed by, or sponsored by Major League Baseball or MLB Advanced Media, L.P. All data is sourced from the MLB Stats API and is subject to MLBAM's terms of use. This plugin is intended for individual, personal, non-commercial use only.
+
+---
+
 ## Credits
 
 Created by **T.J. Lauerman aka ThatSportsGamer**
