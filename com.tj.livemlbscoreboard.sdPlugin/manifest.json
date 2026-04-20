@@ -5,6 +5,7 @@
     "Name": "Live MLB Scoreboard",
     "URL": "https://github.com/ThatSportsGamer/live-mlb-scoreboard-for-stream-deck",
     "Icon": "imgs/plugin-icon",
+    "CategoryIcon": "imgs/category-icon",
     "Version": "1.0.2",
     "SDKVersion": 2,
     "Software": {
