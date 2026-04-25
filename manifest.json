@@ -4,10 +4,11 @@
     "Description": "Displays the full day's MLB schedule across multiple keys — one game per button, updating live every 30 seconds. Designed for Stream Deck XL or any setup with 10+ keys.",
     "Name": "Live MLB Scoreboard",
     "UUID": "com.tj.livemlbscoreboard",
+    "Category": "Live Sports Scores",
     "URL": "https://github.com/ThatSportsGamer/live-mlb-scoreboard-for-stream-deck",
     "Icon": "imgs/plugin-icon",
     "CategoryIcon": "imgs/category-icon",
-    "Version": "1.0.2.0",
+    "Version": "1.0.3.0",
     "SDKVersion": 3,
     "Software": {
         "MinimumVersion": "6.9"
