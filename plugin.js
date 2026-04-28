@@ -402,7 +402,7 @@ const TEAMS = {
     119: { abbr: 'LAD', slug: 'dodgers',    color: '#005A9C', name: 'Dodgers'      },
     120: { abbr: 'WSH', slug: 'nationals',  color: '#AB0003', name: 'Nationals'    },
     121: { abbr: 'NYM', slug: 'mets',       color: '#002D72', name: 'Mets'         },
-    133: { abbr: 'OAK', slug: 'athletics',  color: '#006B3F', name: 'Athletics'    },
+    133: { abbr: 'ATH', slug: 'athletics',  color: '#006B3F', name: 'Athletics'    },
     134: { abbr: 'PIT', slug: 'pirates',    color: '#FDB827', name: 'Pirates'      },
     135: { abbr: 'SD',  slug: 'padres',     color: '#FFC425', name: 'Padres'       },
     136: { abbr: 'SEA', slug: 'mariners',   color: '#005C5C', name: 'Mariners'     },
