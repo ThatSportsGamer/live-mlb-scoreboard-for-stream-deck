@@ -4,7 +4,7 @@
 
 A Stream Deck plugin that displays today's full MLB schedule across multiple buttons — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 10 or more keys.
 
-![Stream Deck Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.4-green)
+![Stream Deck Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.5-green)
 
 ---
 
@@ -42,7 +42,9 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple but
 ## Setup
 
 1. Drag the **Live MLB Scoreboard** action onto as many buttons as you want
-2. Games fill in **top-to-bottom, left-to-right** by scheduled start time — no manual ordering needed
+2. In the settings panel, choose your fill order:
+   - **Top-to-bottom, left-to-right** (default) — fills each column before moving to the next
+   - **Left-to-right, top-to-bottom** — fills each row before moving to the next
 3. In the settings panel, choose what happens when you press a button:
    - **MLB Gameday (free)** — opens the game's live Gameday page in your browser
    - **MLB.tv (subscription)** — opens the game's MLB.tv broadcast page
@@ -64,6 +66,9 @@ During **Spring Training**, Split Squad days can push the total above 15 — con
 ---
 
 ## Recent Updates
+
+**v1.0.5.0**
+- Added fill order setting: choose between top-to-bottom, left-to-right (default) or left-to-right, top-to-bottom
 
 **v1.0.4.0**
 - Updated Oakland Athletics to Athletics (ATH) to reflect team's relocation to Sacramento

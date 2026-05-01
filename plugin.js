@@ -182,6 +182,7 @@ let allGames         = [];        // today's games sorted by start time
 let globalTimer      = null;      // single shared 30s refresh timer
 let globalRefreshing = false;     // mutex: prevents overlapping fetches
 let globalLinkType   = 'gameday'; // shared across all scoreboard buttons
+let globalSortOrder  = 'column';  // 'column' = top→bottom, left→right | 'row' = left→right, top→bottom
 
 // Debounce willAppear bursts (user dragging multiple buttons at once)
 let refreshDebounce  = null;
@@ -216,7 +217,8 @@ function handleEvent({ event, context, payload }) {
             const settings = (payload && payload.settings) || {};
             const coords   = (payload && payload.coordinates) || { row: 0, column: 0 };
             instances.set(context, { coords, settings });
-            if (settings.linkType) globalLinkType = settings.linkType;
+            if (settings.linkType)  globalLinkType  = settings.linkType;
+            if (settings.sortOrder) globalSortOrder = settings.sortOrder;
             log('willAppear row=' + coords.row + ' col=' + coords.column + ' total=' + instances.size);
 
             // Start the shared timer if not already running
@@ -247,7 +249,8 @@ function handleEvent({ event, context, payload }) {
             const settings = (payload && payload.settings) || {};
             const inst = instances.get(context);
             if (inst) inst.settings = settings;
-            if (settings.linkType) globalLinkType = settings.linkType;
+            if (settings.linkType)   globalLinkType  = settings.linkType;
+            if (settings.sortOrder)  globalSortOrder = settings.sortOrder;
             break;
         }
 
@@ -269,23 +272,33 @@ function handleEvent({ event, context, payload }) {
         case 'sendToPlugin': {
             if (payload && payload.settings) {
                 const s = payload.settings;
-                if (s.linkType) globalLinkType = s.linkType;
+                if (s.linkType)  globalLinkType  = s.linkType;
+                if (s.sortOrder) globalSortOrder = s.sortOrder;
                 // Sync the setting to every button so it persists on restart
                 for (const [ctx, inst] of instances) {
                     inst.settings = { ...inst.settings, ...s };
                     ws.send(JSON.stringify({ event: 'setSettings', context: ctx, payload: inst.settings }));
                 }
+                // Re-render immediately so the new sort order takes effect
+                if (s.sortOrder) refreshAll();
             }
             break;
         }
     }
 }
 
-// ── Sort contexts: column-major (top→bottom, left→right) ─────────────────────
+// ── Sort contexts by fill order ───────────────────────────────────────────────
+// 'column' = column-major: top→bottom, left→right (default)
+// 'row'    = row-major:    left→right, top→bottom
 function getSortedContexts() {
     return [...instances.keys()].sort((a, b) => {
         const ca = instances.get(a).coords;
         const cb = instances.get(b).coords;
+        if (globalSortOrder === 'row') {
+            if (ca.row !== cb.row) return ca.row - cb.row;
+            return ca.column - cb.column;
+        }
+        // default: column-major
         if (ca.column !== cb.column) return ca.column - cb.column;
         return ca.row - cb.row;
     });
