@@ -219,6 +219,13 @@ function handleEvent({ event, context, payload }) {
             instances.set(context, { coords, settings });
             if (settings.linkType)  globalLinkType  = settings.linkType;
             if (settings.sortOrder) globalSortOrder = settings.sortOrder;
+
+            // Push current globals to any new button that has no saved settings yet,
+            // so its property inspector always reflects the shared state.
+            if (!settings.linkType || !settings.sortOrder) {
+                ws.send(JSON.stringify({ event: 'setSettings', context, payload: { linkType: globalLinkType, sortOrder: globalSortOrder } }));
+            }
+
             log('willAppear row=' + coords.row + ' col=' + coords.column + ' total=' + instances.size);
 
             // Start the shared timer if not already running
