@@ -2,7 +2,7 @@
 
 ![Live MLB Scoreboard Plugin](screenshots/LiveMLBScoreboardInAction.png)
 
-A Stream Deck plugin that displays today's full MLB schedule across multiple buttons — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 10 or more keys.
+A Stream Deck plugin that displays today's full MLB schedule across multiple buttons — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 15 or more keys.
 
 ![Stream Deck Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.5-green)
 
