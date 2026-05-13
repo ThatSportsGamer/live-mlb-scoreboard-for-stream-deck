@@ -4,7 +4,7 @@
 
 A Stream Deck plugin that displays today's full MLB schedule across multiple buttons — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 15 or more keys.
 
-![Stream Deck Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.5-green)
+![Stream Deck Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.6-green)
 
 ---
 
@@ -18,8 +18,9 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple but
 - **Special states** — postponed games show `PPD`, suspended games show `SUSP`, rain delays show `DELAY`
 - **Doubleheader support** — both games each get their own button
 - **Browser shortcut** — press any button to open that game in MLB Gameday or MLB.tv
+- **Overflow indicator** — if there are more games than buttons, the last button shows how many are off-screen and opens MLB Scores on press
 - **No-flicker updates** — buttons only redraw when the display actually changes
-- **One shared setting** — the link type (Gameday vs. MLB.tv) applies to all buttons at once
+- **Shared settings** — fill order and link type apply to all buttons at once
 
 ---
 
@@ -66,6 +67,9 @@ During **Spring Training**, Split Squad days can push the total above 15 — con
 ---
 
 ## Recent Updates
+
+**v1.0.6.0**
+- Added overflow indicator: when there are more games than buttons, the last button shows how many games aren't displayed and opens MLB Scores on press
 
 **v1.0.5.0**
 - Added fill order setting: choose between top-to-bottom, left-to-right (default) or left-to-right, top-to-bottom
