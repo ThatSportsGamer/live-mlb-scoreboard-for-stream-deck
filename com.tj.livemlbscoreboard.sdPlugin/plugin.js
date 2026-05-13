@@ -183,6 +183,7 @@ let globalTimer      = null;      // single shared 30s refresh timer
 let globalRefreshing = false;     // mutex: prevents overlapping fetches
 let globalLinkType   = 'gameday'; // shared across all scoreboard buttons
 let globalSortOrder  = 'column';  // 'column' = top→bottom, left→right | 'row' = left→right, top→bottom
+let overflowContext  = null;      // context of the overflow button (when games > buttons)
 
 // Debounce willAppear bursts (user dragging multiple buttons at once)
 let refreshDebounce  = null;
@@ -262,6 +263,12 @@ function handleEvent({ event, context, payload }) {
         }
 
         case 'keyUp': {
+            // Overflow button — open the full MLB schedule
+            if (context === overflowContext) {
+                log('keyUp — overflow button — opening MLB schedule');
+                ws.send(JSON.stringify({ event: 'openUrl', payload: { url: 'https://www.mlb.com/scores' } }));
+                break;
+            }
             const sorted    = getSortedContexts();
             const slotIndex = sorted.indexOf(context);
             const game      = slotIndex >= 0 ? (allGames[slotIndex] || null) : null;
@@ -320,9 +327,20 @@ async function refreshAll() {
         allGames = await fetchAllGames();
         log('Fetched ' + allGames.length + ' games');
 
-        const sorted = getSortedContexts();
-        for (let i = 0; i < sorted.length; i++) {
+        const sorted   = getSortedContexts();
+        const overflow = allGames.length > sorted.length;
+
+        // If there are more games than buttons, reserve the last button as an overflow indicator
+        const gameSlots = overflow ? sorted.length - 1 : sorted.length;
+        overflowContext = overflow ? sorted[sorted.length - 1] : null;
+
+        for (let i = 0; i < gameSlots; i++) {
             renderButton(sorted[i], allGames[i] || null);
+        }
+
+        if (overflow) {
+            const extra = allGames.length - gameSlots;
+            renderOverflow(overflowContext, extra);
         }
     } catch (err) {
         log('refreshAll error:', err.message);
@@ -376,6 +394,15 @@ function renderButton(context, game) {
     }
 
     setButton(context, lines, spacing);
+}
+
+// ── Render the overflow indicator button ─────────────────────────────────────
+function renderOverflow(context, count) {
+    const lines = [
+        { text: '+' + count,  fs: 22, color: '#FFD700' },
+        { text: 'more',       fs: 13, color: '#999999' },
+    ];
+    setButton(context, lines, 1.3);
 }
 
 // ── Build display lines ───────────────────────────────────────────────────────
