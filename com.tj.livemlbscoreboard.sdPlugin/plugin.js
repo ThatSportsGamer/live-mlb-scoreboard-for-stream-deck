@@ -405,6 +405,18 @@ function renderOverflow(context, count) {
     setButton(context, lines, 1.3);
 }
 
+// ── Live inning row: out dots (SVG circles) + inning indicator ────────────────
+function liveInnLine(outs, innText) {
+    const n = outs ?? 0;
+    return {
+        dotFill1: n >= 1 ? '#E74C3C' : '#555555',
+        dotFill2: n >= 2 ? '#E74C3C' : '#555555',
+        innText,
+        innFs: 14,
+        fs: 14,
+    };
+}
+
 // ── Build display lines ───────────────────────────────────────────────────────
 function buildLines(game) {
     if (!game) return ['No', 'Game'];
@@ -422,7 +434,7 @@ function buildLines(game) {
         case 'live':    return [
             { text: game.awayAbbr + ' ' + game.awayRuns, fs: 18 },
             { text: game.homeAbbr + ' ' + game.homeRuns, fs: 18 },
-            { text: game.half + game.inn,                fs: 14, color: '#FFD700' },
+            liveInnLine(game.outs, game.half + game.inn),
         ];
         case 'final':   return [
             { text: game.awayAbbr + ' ' + game.awayRuns, fs: 18 },
@@ -570,7 +582,7 @@ function parseAllGames(data) {
             // Live
             const inn  = ls?.currentInning || '?';
             const half = ls?.inningHalf === 'Top' ? '\u25b2' : '\u25bc';
-            return { state: 'live', matchup, homeAbbr: homeAbr, awayAbbr: awayAbr, homeId, awayId, homeRuns, awayRuns, inn, half, gamePk, gameDate, startISO };
+            return { state: 'live', matchup, homeAbbr: homeAbr, awayAbbr: awayAbr, homeId, awayId, homeRuns, awayRuns, inn, half, outs: ls?.outs ?? 0, gamePk, gameDate, startISO };
 
         }).filter(Boolean);
 
@@ -608,8 +620,16 @@ function makeImage(lines, lineSpacing = 1.4, bgColor = 'black') {
     const totalH      = lineHeights.reduce((a, b) => a + b, 0);
     let   y           = (H - totalH) / 2 + items[0].fs * 0.80;
 
-    const rows = items.map(({ text, fs, color }, i) => {
+    const rows = items.map((item, i) => {
+        const { text, fs, color } = item;
         if (i > 0) y += lineHeights[i - 1] - items[i - 1].fs * 0.80 + fs * 0.80;
+        if ('dotFill1' in item) {
+            const cy = (y - 5).toFixed(1);
+            return `<circle cx="18" cy="${cy}" r="3.5" fill="${item.dotFill1}"/>` +
+                   `<circle cx="27" cy="${cy}" r="3.5" fill="${item.dotFill2}"/>` +
+                   `<text x="50" y="${y.toFixed(1)}" text-anchor="middle" fill="#FFD700" ` +
+                   `font-family="Helvetica Neue,Arial,sans-serif" font-size="${item.innFs}" font-weight="600">${escXml(item.innText)}</text>`;
+        }
         return `<text x="36" y="${y.toFixed(1)}" text-anchor="middle" fill="${color || 'white'}" ` +
                `font-family="Helvetica Neue,Arial,sans-serif" font-size="${fs}" font-weight="600">${escXml(text)}</text>`;
     }).join('');
