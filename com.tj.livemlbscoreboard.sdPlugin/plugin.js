@@ -572,6 +572,12 @@ function parseAllGames(data) {
                 return { state: 'preview', matchup, time: fmtTime(g.gameDate), gamePk, gameDate, startISO, homeId, awayId };
             }
 
+            // The API flips abstractGameState to "Live" during pre-game warmups before first pitch.
+            // Keep showing the start time until play actually begins.
+            if (detailed === 'Pre-Game' || detailed === 'Warmup') {
+                return { state: 'preview', matchup, time: fmtTime(startISO), gamePk, gameDate, startISO, homeId, awayId };
+            }
+
             const homeRuns = ls?.teams?.home?.runs ?? 0;
             const awayRuns = ls?.teams?.away?.runs ?? 0;
 
