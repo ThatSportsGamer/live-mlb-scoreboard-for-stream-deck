@@ -421,25 +421,31 @@ function liveInnLine(outs, innText) {
 function buildLines(game) {
     if (!game) return ['No', 'Game'];
 
+    const gl = game.gameLabel ? ' ' + game.gameLabel : '';
+
     switch (game.state) {
-        case 'preview': return [game.matchup, game.time];
-        case 'ppd':        return [game.matchup, { text: 'PPD',   fs: 16, color: '#E74C3C' }];
-        case 'susp':       return [game.matchup, { text: 'SUSP',  fs: 16, color: '#E74C3C' }];
-        case 'delay':      return [game.matchup, { text: 'DELAY', fs: 14, color: '#3498DB' }];
+        case 'preview': {
+            const lines = [game.matchup, game.time];
+            if (game.gameLabel) lines.push({ text: game.gameLabel, fs: 14, color: '#FFD700' });
+            return lines;
+        }
+        case 'ppd':        return [game.matchup, { text: 'PPD' + gl,   fs: gl ? 13 : 16, color: '#E74C3C' }];
+        case 'susp':       return [game.matchup, { text: 'SUSP' + gl,  fs: gl ? 13 : 16, color: '#E74C3C' }];
+        case 'delay':      return [game.matchup, { text: 'DELAY' + gl, fs: gl ? 11 : 14, color: '#3498DB' }];
         case 'delay-live': return [
             { text: game.awayAbbr + ' ' + game.awayRuns, fs: 18 },
             { text: game.homeAbbr + ' ' + game.homeRuns, fs: 18 },
-            { text: 'DELAY',                              fs: 14, color: '#3498DB' },
+            { text: 'DELAY' + gl,                         fs: gl ? 11 : 14, color: '#3498DB' },
         ];
         case 'live':    return [
             { text: game.awayAbbr + ' ' + game.awayRuns, fs: 18 },
             { text: game.homeAbbr + ' ' + game.homeRuns, fs: 18 },
-            liveInnLine(game.outs, game.half + game.inn),
+            liveInnLine(game.outs, game.half + game.inn + gl),
         ];
         case 'final':   return [
             { text: game.awayAbbr + ' ' + game.awayRuns, fs: 18 },
             { text: game.homeAbbr + ' ' + game.homeRuns, fs: 18 },
-            { text: 'Final',                              fs: 14, color: '#FFD700' },
+            { text: 'Final' + gl,                         fs: gl ? 12 : 14, color: '#FFD700' },
         ];
         default: return ['MLB', '---'];
     }
@@ -538,57 +544,58 @@ function parseAllGames(data) {
         games.sort((a, b) => new Date(a.gameDate) - new Date(b.gameDate));
 
         return games.map(g => {
-            const status   = g?.status?.abstractGameState;
-            const detailed = g?.status?.detailedState || '';
-            const homeId   = g?.teams?.home?.team?.id;
-            const awayId   = g?.teams?.away?.team?.id;
+            const status    = g?.status?.abstractGameState;
+            const detailed  = g?.status?.detailedState || '';
+            const homeId    = g?.teams?.home?.team?.id;
+            const awayId    = g?.teams?.away?.team?.id;
             if (!homeId || !awayId) return null;
 
-            const homeAbr  = teamAbbr(homeId);
-            const awayAbr  = teamAbbr(awayId);
-            const matchup  = awayAbr + ' @ ' + homeAbr;
-            const gamePk   = g.gamePk;
-            const gameDate = g.gameDate ? g.gameDate.slice(0, 10).replace(/-/g, '/') : '2000/01/01';
-            const startISO = g.gameDate || null;
-            const ls       = g.linescore;
+            const homeAbr   = teamAbbr(homeId);
+            const awayAbr   = teamAbbr(awayId);
+            const matchup   = awayAbr + ' @ ' + homeAbr;
+            const gamePk    = g.gamePk;
+            const gameDate  = g.gameDate ? g.gameDate.slice(0, 10).replace(/-/g, '/') : '2000/01/01';
+            const startISO  = g.gameDate || null;
+            const ls        = g.linescore;
+            const gameLabel = (g.doubleHeader === 'Y' || g.doubleHeader === 'S') ? 'G' + (g.gameNumber || 1) : null;
 
-            log('Game:', matchup, '|', status, '|', detailed);
+            log('Game:', matchup, '|', status, '|', detailed, gameLabel || '');
 
             // Special states — check detailedState first
-            if (detailed === 'Postponed')       return { state: 'ppd',   matchup, gamePk, gameDate, startISO, homeId, awayId };
-            if (detailed.includes('Suspended')) return { state: 'susp',  matchup, gamePk, gameDate, startISO, homeId, awayId };
+            if (detailed === 'Postponed')       return { state: 'ppd',   matchup, gamePk, gameDate, startISO, homeId, awayId, gameLabel };
+            if (detailed.includes('Suspended')) return { state: 'susp',  matchup, gamePk, gameDate, startISO, homeId, awayId, gameLabel };
             if (detailed.includes('Delayed')) {
                 // Mid-game delay: game started, show score with DELAY where inning would be
                 const inn = ls?.currentInning;
                 if (inn) {
                     const homeRuns = ls?.teams?.home?.runs ?? 0;
                     const awayRuns = ls?.teams?.away?.runs ?? 0;
-                    return { state: 'delay-live', matchup, homeAbbr: homeAbr, awayAbbr: awayAbr, homeId, awayId, homeRuns, awayRuns, gamePk, gameDate, startISO };
+                    return { state: 'delay-live', matchup, homeAbbr: homeAbr, awayAbbr: awayAbr, homeId, awayId, homeRuns, awayRuns, gamePk, gameDate, startISO, gameLabel };
                 }
-                return { state: 'delay', matchup, gamePk, gameDate, startISO, homeId, awayId };
+                return { state: 'delay', matchup, gamePk, gameDate, startISO, homeId, awayId, gameLabel };
             }
 
             if (status === 'Preview') {
-                return { state: 'preview', matchup, time: fmtTime(g.gameDate), gamePk, gameDate, startISO, homeId, awayId };
+                return { state: 'preview', matchup, time: fmtTime(g.gameDate), gamePk, gameDate, startISO, homeId, awayId, gameLabel };
             }
 
             // The API flips abstractGameState to "Live" during pre-game warmups before first pitch.
             // Keep showing the start time until play actually begins.
             if (detailed === 'Pre-Game' || detailed === 'Warmup') {
-                return { state: 'preview', matchup, time: fmtTime(startISO), gamePk, gameDate, startISO, homeId, awayId };
+                return { state: 'preview', matchup, time: fmtTime(startISO), gamePk, gameDate, startISO, homeId, awayId, gameLabel };
             }
 
             const homeRuns = ls?.teams?.home?.runs ?? 0;
             const awayRuns = ls?.teams?.away?.runs ?? 0;
 
             if (status === 'Final') {
-                return { state: 'final', matchup, homeAbbr: homeAbr, awayAbbr: awayAbr, homeId, awayId, homeRuns, awayRuns, gamePk, gameDate, startISO };
+                return { state: 'final', matchup, homeAbbr: homeAbr, awayAbbr: awayAbr, homeId, awayId, homeRuns, awayRuns, gamePk, gameDate, startISO, gameLabel };
             }
 
             // Live
             const inn  = ls?.currentInning || '?';
             const half = ls?.inningHalf === 'Top' ? '\u25b2' : '\u25bc';
-            return { state: 'live', matchup, homeAbbr: homeAbr, awayAbbr: awayAbr, homeId, awayId, homeRuns, awayRuns, inn, half, outs: ls?.outs ?? 0, gamePk, gameDate, startISO };
+            return { state: 'live', matchup, homeAbbr: homeAbr, awayAbbr: awayAbr, homeId, awayId, homeRuns, awayRuns, inn, half, outs: ls?.outs ?? 0, gamePk, gameDate, startISO, gameLabel };
 
         }).filter(Boolean);
 

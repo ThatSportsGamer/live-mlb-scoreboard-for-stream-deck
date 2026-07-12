@@ -4,7 +4,7 @@
 
 A Stream Deck plugin that displays today's full MLB schedule across multiple buttons — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 15 or more keys.
 
-![Stream Deck Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.10-green)
+![Stream Deck Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.11-green)
 
 ---
 
@@ -16,7 +16,7 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple but
 - **Final scores** — shows the final score with a "Final" label
 - **Score-change flash** — when a team scores, that game's button flashes in the scoring team's primary color
 - **Special states** — postponed games show `PPD`, suspended games show `SUSP`, rain delays show `DELAY`
-- **Doubleheader support** — both games each get their own button
+- **Doubleheader support** — both games each get their own button with G1/G2 labels so you always know which game is which
 - **Browser shortcut** — press any button to open that game in MLB Gameday or MLB.tv
 - **Overflow indicator** — if there are more games than buttons, the last button shows how many are off-screen and opens MLB Scores on press
 - **No-flicker updates** — buttons only redraw when the display actually changes
@@ -67,6 +67,9 @@ During **Spring Training**, Split Squad days can push the total above 15 — con
 ---
 
 ## Recent Updates
+
+**v1.0.11.0**
+- Doubleheader labels: when two teams play twice in a day, each game's button now shows G1 or G2 — in the inning indicator during live play, next to "Final" when the game ends, and as a third line before the game starts
 
 **v1.0.10.0**
 - Fixed: buttons no longer switch to "Top 1" during pre-game warmups before first pitch — the matchup and start time stay visible until the game actually begins
