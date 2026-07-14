@@ -483,6 +483,8 @@ const TEAMS = {
     146: { abbr: 'MIA', slug: 'marlins',    color: '#00A3E0', name: 'Marlins'      },
     147: { abbr: 'NYY', slug: 'yankees',    color: '#C4CED4', name: 'Yankees'      },
     158: { abbr: 'MIL', slug: 'brewers',    color: '#FFC52F', name: 'Brewers'      },
+    159: { abbr: 'AL',  slug: '',           color: '#D50032', name: 'AL All-Stars' },
+    160: { abbr: 'NL',  slug: '',           color: '#0057B8', name: 'NL All-Stars' },
 };
 
 const teamAbbr  = id => TEAMS[id]?.abbr  || 'MLB';
