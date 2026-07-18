@@ -431,7 +431,7 @@ function buildLines(game) {
         }
         case 'ppd':        return [game.matchup, { text: 'PPD' + gl,   fs: gl ? 13 : 16, color: '#E74C3C' }];
         case 'susp':       return [game.matchup, { text: 'SUSP' + gl,  fs: gl ? 13 : 16, color: '#E74C3C' }];
-        case 'delay':      return [game.matchup, { text: 'DELAY' + gl, fs: gl ? 11 : 14, color: '#3498DB' }];
+        case 'delay':      return [game.matchup, game.time, { text: 'DELAY' + gl, fs: gl ? 10 : 13, color: '#3498DB' }];
         case 'delay-live': return [
             { text: game.awayAbbr + ' ' + game.awayRuns, fs: 18 },
             { text: game.homeAbbr + ' ' + game.homeRuns, fs: 18 },
@@ -574,7 +574,7 @@ function parseAllGames(data) {
                     const awayRuns = ls?.teams?.away?.runs ?? 0;
                     return { state: 'delay-live', matchup, homeAbbr: homeAbr, awayAbbr: awayAbr, homeId, awayId, homeRuns, awayRuns, gamePk, gameDate, startISO, gameLabel };
                 }
-                return { state: 'delay', matchup, gamePk, gameDate, startISO, homeId, awayId, gameLabel };
+                return { state: 'delay', matchup, time: fmtTime(startISO), gamePk, gameDate, startISO, homeId, awayId, gameLabel };
             }
 
             if (status === 'Preview') {
@@ -640,9 +640,15 @@ function makeImage(lines, lineSpacing = 1.4, bgColor = 'black') {
         if (i > 0) y += lineHeights[i - 1] - items[i - 1].fs * 0.80 + fs * 0.80;
         if ('dotFill1' in item) {
             const cy = (y - 5).toFixed(1);
-            return `<circle cx="18" cy="${cy}" r="3.5" fill="${item.dotFill1}"/>` +
-                   `<circle cx="27" cy="${cy}" r="3.5" fill="${item.dotFill2}"/>` +
-                   `<text x="50" y="${y.toFixed(1)}" text-anchor="middle" fill="#FFD700" ` +
+            // Estimate text width so the full group [dot dot text] is centered at x=36.
+            // Math: dot1X = 29 - textW/2; textX always resolves to 46.5 regardless of width.
+            const estW = Array.from(item.innText.trim()).reduce(
+                (w, ch) => w + (ch === ' ' ? item.innFs * 0.3 : item.innFs * 0.55), 0);
+            const dot1X = (29 - estW / 2).toFixed(1);
+            const dot2X = (29 - estW / 2 + 9).toFixed(1);
+            return `<circle cx="${dot1X}" cy="${cy}" r="3.5" fill="${item.dotFill1}"/>` +
+                   `<circle cx="${dot2X}" cy="${cy}" r="3.5" fill="${item.dotFill2}"/>` +
+                   `<text x="46.5" y="${y.toFixed(1)}" text-anchor="middle" fill="#FFD700" ` +
                    `font-family="Helvetica Neue,Arial,sans-serif" font-size="${item.innFs}" font-weight="600">${escXml(item.innText)}</text>`;
         }
         return `<text x="36" y="${y.toFixed(1)}" text-anchor="middle" fill="${color || 'white'}" ` +
