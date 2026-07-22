@@ -89,6 +89,29 @@
             color: #888;
             line-height: 1.6;
         }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            accent-color: var(--accent-hi);
+        }
+
+        .checkbox-row label {
+            margin-bottom: 0;
+            color: var(--text);
+            font-size: 12px;
+            text-transform: none;
+            letter-spacing: normal;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -106,6 +129,11 @@
     <option value="gameday">MLB Gameday (free)</option>
     <option value="tv">MLB.tv (subscription)</option>
 </select>
+
+<div class="checkbox-row">
+    <input type="checkbox" id="finalsLast">
+    <label for="finalsLast">Send completed games to the end of the list</label>
+</div>
 
 <div class="info-box">
     <strong>How it works:</strong><br>
@@ -144,6 +172,7 @@
                     var s = data.payload && data.payload.settings;
                     if (s && s.linkType)  document.getElementById('linkType').value  = s.linkType;
                     if (s && s.sortOrder) document.getElementById('sortOrder').value = s.sortOrder;
+                    if (s && s.finalsLast !== undefined) document.getElementById('finalsLast').checked = !!s.finalsLast;
                 }
             } catch(e) {}
         };
@@ -152,8 +181,9 @@
     function saveSettings() {
         if (!websocket || !piUUID) return;
         var settings = {
-            linkType:  document.getElementById('linkType').value,
-            sortOrder: document.getElementById('sortOrder').value,
+            linkType:   document.getElementById('linkType').value,
+            sortOrder:  document.getElementById('sortOrder').value,
+            finalsLast: document.getElementById('finalsLast').checked,
         };
         websocket.send(JSON.stringify({ event: 'setSettings',  context: piUUID, payload: settings }));
         websocket.send(JSON.stringify({ event: 'sendToPlugin', context: piUUID, action: actionUUID,
@@ -162,6 +192,7 @@
 
     document.getElementById('linkType').addEventListener('change', saveSettings);
     document.getElementById('sortOrder').addEventListener('change', saveSettings);
+    document.getElementById('finalsLast').addEventListener('change', saveSettings);
 </script>
 
 <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #444; text-align: center; color: #666; font-size: 10px; line-height: 1.5;">

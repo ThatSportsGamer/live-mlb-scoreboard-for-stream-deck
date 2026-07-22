@@ -183,6 +183,7 @@ let globalTimer      = null;      // single shared 30s refresh timer
 let globalRefreshing = false;     // mutex: prevents overlapping fetches
 let globalLinkType   = 'gameday'; // shared across all scoreboard buttons
 let globalSortOrder  = 'column';  // 'column' = top→bottom, left→right | 'row' = left→right, top→bottom
+let globalFinalsLast = false;     // true = move completed games to the end of the list
 let overflowContext  = null;      // context of the overflow button (when games > buttons)
 
 // Debounce willAppear bursts (user dragging multiple buttons at once)
@@ -218,13 +219,14 @@ function handleEvent({ event, context, payload }) {
             const settings = (payload && payload.settings) || {};
             const coords   = (payload && payload.coordinates) || { row: 0, column: 0 };
             instances.set(context, { coords, settings });
-            if (settings.linkType)  globalLinkType  = settings.linkType;
-            if (settings.sortOrder) globalSortOrder = settings.sortOrder;
+            if (settings.linkType)             globalLinkType  = settings.linkType;
+            if (settings.sortOrder)            globalSortOrder = settings.sortOrder;
+            if (settings.finalsLast !== undefined) globalFinalsLast = !!settings.finalsLast;
 
             // Push current globals to any new button that has no saved settings yet,
             // so its property inspector always reflects the shared state.
-            if (!settings.linkType || !settings.sortOrder) {
-                ws.send(JSON.stringify({ event: 'setSettings', context, payload: { linkType: globalLinkType, sortOrder: globalSortOrder } }));
+            if (!settings.linkType || !settings.sortOrder || settings.finalsLast === undefined) {
+                ws.send(JSON.stringify({ event: 'setSettings', context, payload: { linkType: globalLinkType, sortOrder: globalSortOrder, finalsLast: globalFinalsLast } }));
             }
 
             log('willAppear row=' + coords.row + ' col=' + coords.column + ' total=' + instances.size);
@@ -259,6 +261,7 @@ function handleEvent({ event, context, payload }) {
             if (inst) inst.settings = settings;
             if (settings.linkType)   globalLinkType  = settings.linkType;
             if (settings.sortOrder)  globalSortOrder = settings.sortOrder;
+            if (settings.finalsLast !== undefined) globalFinalsLast = !!settings.finalsLast;
             break;
         }
 
@@ -288,13 +291,14 @@ function handleEvent({ event, context, payload }) {
                 const s = payload.settings;
                 if (s.linkType)  globalLinkType  = s.linkType;
                 if (s.sortOrder) globalSortOrder = s.sortOrder;
+                if (s.finalsLast !== undefined) globalFinalsLast = !!s.finalsLast;
                 // Sync the setting to every button so it persists on restart
                 for (const [ctx, inst] of instances) {
                     inst.settings = { ...inst.settings, ...s };
                     ws.send(JSON.stringify({ event: 'setSettings', context: ctx, payload: inst.settings }));
                 }
                 // Re-render immediately so the new sort order takes effect
-                if (s.sortOrder) refreshAll();
+                if (s.sortOrder || s.finalsLast !== undefined) refreshAll();
             }
             break;
         }
@@ -326,6 +330,15 @@ async function refreshAll() {
     try {
         allGames = await fetchAllGames();
         log('Fetched ' + allGames.length + ' games');
+
+        // Optionally push completed games to the end of the list, keeping
+        // each group's internal order (by start time) intact.
+        if (globalFinalsLast) {
+            allGames = [
+                ...allGames.filter(g => g.state !== 'final'),
+                ...allGames.filter(g => g.state === 'final'),
+            ];
+        }
 
         const sorted   = getSortedContexts();
         const overflow = allGames.length > sorted.length;
