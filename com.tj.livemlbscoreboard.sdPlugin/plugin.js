@@ -526,10 +526,12 @@ function buildGameUrl(game, linkType) {
                  : (game.state === 'live' || game.state === 'delay-live') ? 'live'
                  : 'preview';
     if (linkType === 'tv' && !isAllStarGame) {
-        // If the game starts more than 60 minutes from now, the stream won't be live yet.
-        const startsIn = game.startISO ? (new Date(game.startISO) - Date.now()) : 0;
-        if (startsIn > 60 * 60 * 1000) {
-            log('TV requested but game is ' + Math.round(startsIn / 60000) + 'min away — falling back to Gameday');
+        // Only send to MLB.tv once the game has actually started — checking elapsed time
+        // against the scheduled start breaks down on a rain delay, where the clock passes
+        // first pitch but the game (and stream) hasn't begun yet.
+        const gameStarted = game.state === 'live' || game.state === 'delay-live' || game.state === 'final';
+        if (!gameStarted) {
+            log('TV requested but game has not started (state=' + game.state + ') — falling back to Gameday');
             return `https://www.mlb.com/gameday/${away}-vs-${home}/${game.gameDate}/${game.gamePk}/${suffix}`;
         }
         return `https://www.mlb.com/tv/g${game.gamePk}`;
@@ -600,9 +602,12 @@ function parseAllGames(data) {
             if (detailed === 'Postponed')       return { state: 'ppd',   matchup, gamePk, gameDate, startISO, homeId, awayId, gameLabel };
             if (detailed.includes('Suspended')) return { state: 'susp',  matchup, gamePk, gameDate, startISO, homeId, awayId, gameLabel };
             if (detailed.includes('Delayed')) {
-                // Mid-game delay: game started, show score with DELAY where inning would be
-                const inn = ls?.currentInning;
-                if (inn) {
+                // Distinguish a pre-game delay (e.g. "Delayed Start", status still "Preview")
+                // from a mid-game delay (status "Live"). MLB's linescore pre-populates a "Top 1"
+                // shell with a defense/offense lineup before first pitch, so checking for
+                // linescore.currentInning is NOT a reliable signal that the game has started —
+                // abstractGameState is the authoritative source.
+                if (status === 'Live') {
                     const homeRuns = ls?.teams?.home?.runs ?? 0;
                     const awayRuns = ls?.teams?.away?.runs ?? 0;
                     return { state: 'delay-live', matchup, homeAbbr: homeAbr, awayAbbr: awayAbr, homeId, awayId, homeRuns, awayRuns, gamePk, gameDate, startISO, gameLabel };
