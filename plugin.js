@@ -331,6 +331,13 @@ async function refreshAll() {
         allGames = await fetchAllGames();
         log('Fetched ' + allGames.length + ' games');
 
+        // Drop cached state for any game no longer on today's schedule (e.g. it
+        // rolled off after the 2am cutoff) so these maps don't grow indefinitely
+        // across days on a long-running plugin process.
+        const liveGamePks = new Set(allGames.map(g => g.gamePk));
+        for (const pk of prevScores.keys())      if (!liveGamePks.has(pk)) prevScores.delete(pk);
+        for (const pk of prevGameStates.keys())  if (!liveGamePks.has(pk)) prevGameStates.delete(pk);
+
         // Optionally push completed games to the end of the list, keeping
         // each group's internal order (by start time) intact.
         if (globalFinalsLast) {
@@ -496,8 +503,8 @@ const TEAMS = {
     146: { abbr: 'MIA', slug: 'marlins',    color: '#00A3E0', name: 'Marlins'      },
     147: { abbr: 'NYY', slug: 'yankees',    color: '#C4CED4', name: 'Yankees'      },
     158: { abbr: 'MIL', slug: 'brewers',    color: '#FFC52F', name: 'Brewers'      },
-    159: { abbr: 'AL',  slug: '',           color: '#D50032', name: 'AL All-Stars' },
-    160: { abbr: 'NL',  slug: '',           color: '#0057B8', name: 'NL All-Stars' },
+    159: { abbr: 'AL',  slug: 'al-all-stars', color: '#D50032', name: 'AL All-Stars' },
+    160: { abbr: 'NL',  slug: 'nl-all-stars', color: '#0057B8', name: 'NL All-Stars' },
 };
 
 const teamAbbr  = id => TEAMS[id]?.abbr  || 'MLB';
@@ -510,16 +517,24 @@ function buildGameUrl(game, linkType) {
     if (!game || !game.gamePk) return 'https://www.mlb.com';
     const away = teamSlug(game.awayId) || 'away';
     const home = teamSlug(game.homeId) || 'home';
-    if (linkType === 'tv') {
+    // The All-Star Game shows up automatically in the day's schedule but isn't
+    // carried on MLB.tv — always send it to Gameday instead, regardless of timing.
+    const isAllStarGame = game.awayId === 159 || game.awayId === 160 || game.homeId === 159 || game.homeId === 160;
+    // Gameday's URL suffix must match the game's actual state — a game that hasn't started
+    // yet (preview, ppd, susp, pre-game delay) needs "/preview", not "/live".
+    const suffix = game.state === 'final' ? 'final'
+                 : (game.state === 'live' || game.state === 'delay-live') ? 'live'
+                 : 'preview';
+    if (linkType === 'tv' && !isAllStarGame) {
         // If the game starts more than 60 minutes from now, the stream won't be live yet.
         const startsIn = game.startISO ? (new Date(game.startISO) - Date.now()) : 0;
         if (startsIn > 60 * 60 * 1000) {
             log('TV requested but game is ' + Math.round(startsIn / 60000) + 'min away — falling back to Gameday');
-            return `https://www.mlb.com/gameday/${away}-vs-${home}/${game.gameDate}/${game.gamePk}/live`;
+            return `https://www.mlb.com/gameday/${away}-vs-${home}/${game.gameDate}/${game.gamePk}/${suffix}`;
         }
         return `https://www.mlb.com/tv/g${game.gamePk}`;
     }
-    return `https://www.mlb.com/gameday/${away}-vs-${home}/${game.gameDate}/${game.gamePk}/live`;
+    return `https://www.mlb.com/gameday/${away}-vs-${home}/${game.gameDate}/${game.gamePk}/${suffix}`;
 }
 
 // ── MLB Stats API ─────────────────────────────────────────────────────────────
@@ -555,6 +570,11 @@ function parseAllGames(data) {
         const games = data.dates[0].games;
         if (!games?.length) { log('API: no games'); return []; }
 
+        // The schedule bucket's official date — use this for Gameday URLs, not each game's
+        // raw UTC timestamp, which rolls to the next calendar day for West Coast/Mountain
+        // evening games (e.g. 7:10pm PT = 2:10am UTC the following day).
+        const officialDate = data.dates[0].date ? data.dates[0].date.replace(/-/g, '/') : '2000/01/01';
+
         // Sort by scheduled start time
         games.sort((a, b) => new Date(a.gameDate) - new Date(b.gameDate));
 
@@ -569,7 +589,7 @@ function parseAllGames(data) {
             const awayAbr   = teamAbbr(awayId);
             const matchup   = awayAbr + ' @ ' + homeAbr;
             const gamePk    = g.gamePk;
-            const gameDate  = g.gameDate ? g.gameDate.slice(0, 10).replace(/-/g, '/') : '2000/01/01';
+            const gameDate  = officialDate;
             const startISO  = g.gameDate || null;
             const ls        = g.linescore;
             const gameLabel = (g.doubleHeader === 'Y' || g.doubleHeader === 'S') ? 'G' + (g.gameNumber || 1) : null;
