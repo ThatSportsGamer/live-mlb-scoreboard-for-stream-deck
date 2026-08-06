@@ -167,7 +167,7 @@ class SimpleWS extends events.EventEmitter {
 }
 
 // ── Plugin state ──────────────────────────────────────────────────────────────
-// context -> { coords: { row, column }, settings: {} }
+// context -> { coords: { row, column }, settings: {}, device }
 const instances  = new Map();
 // gamePk -> { awayRuns, homeRuns } — tracks score changes for flash
 const prevScores = new Map();
@@ -177,6 +177,8 @@ const prevGameStates = new Map();
 const flashing   = new Set();
 // context -> JSON key of last rendered lines (no-redraw optimisation)
 const lastRender = new Map();
+// device id -> { name, type } — populated from deviceDidConnect/deviceDidChange, used only for logging
+const deviceInfo = new Map();
 
 let allGames         = [];        // today's games sorted by start time
 let globalTimer      = null;      // single shared 30s refresh timer
@@ -184,7 +186,10 @@ let globalRefreshing = false;     // mutex: prevents overlapping fetches
 let globalLinkType   = 'gameday'; // shared across all scoreboard buttons
 let globalSortOrder  = 'column';  // 'column' = top→bottom, left→right | 'row' = left→right, top→bottom
 let globalFinalsLast = false;     // true = move completed games to the end of the list
-let overflowContext  = null;      // context of the overflow button (when games > buttons)
+// Each physical/virtual Stream Deck gets its own independent slot numbering into
+// allGames, so a physical deck and a Virtual Stream Deck each show today's games
+// starting from game 1 instead of splitting one combined list between them.
+let overflowContexts = new Set(); // contexts currently acting as an overflow button (one per device, when needed)
 
 // Debounce willAppear bursts (user dragging multiple buttons at once)
 let refreshDebounce  = null;
@@ -212,13 +217,23 @@ ws.on('close', () => {
 });
 
 // ── Stream Deck event handler ─────────────────────────────────────────────────
-function handleEvent({ event, context, payload }) {
+function handleEvent({ event, context, payload, device, deviceInfo: devInfo }) {
     switch (event) {
+
+        case 'deviceDidConnect':
+        case 'deviceDidChange': {
+            if (device && devInfo) {
+                deviceInfo.set(device, { name: devInfo.name, type: devInfo.type });
+                // Device type 11 = Virtual Stream Deck (added in Stream Deck 7.0)
+                log('Device ' + device.slice(0, 8) + ' — ' + devInfo.name + ' (type=' + devInfo.type + (devInfo.type === 11 ? ', Virtual' : '') + ')');
+            }
+            break;
+        }
 
         case 'willAppear': {
             const settings = (payload && payload.settings) || {};
             const coords   = (payload && payload.coordinates) || { row: 0, column: 0 };
-            instances.set(context, { coords, settings });
+            instances.set(context, { coords, settings, device });
             if (settings.linkType)             globalLinkType  = settings.linkType;
             if (settings.sortOrder)            globalSortOrder = settings.sortOrder;
             if (settings.finalsLast !== undefined) globalFinalsLast = !!settings.finalsLast;
@@ -229,7 +244,7 @@ function handleEvent({ event, context, payload }) {
                 ws.send(JSON.stringify({ event: 'setSettings', context, payload: { linkType: globalLinkType, sortOrder: globalSortOrder, finalsLast: globalFinalsLast } }));
             }
 
-            log('willAppear row=' + coords.row + ' col=' + coords.column + ' total=' + instances.size);
+            log('willAppear row=' + coords.row + ' col=' + coords.column + ' device=' + (device ? device.slice(0, 8) : '?') + ' total=' + instances.size);
 
             // Start the shared timer if not already running
             if (!globalTimer) {
@@ -267,12 +282,15 @@ function handleEvent({ event, context, payload }) {
 
         case 'keyUp': {
             // Overflow button — open the full MLB schedule
-            if (context === overflowContext) {
+            if (overflowContexts.has(context)) {
                 log('keyUp — overflow button — opening MLB schedule');
                 ws.send(JSON.stringify({ event: 'openUrl', payload: { url: 'https://www.mlb.com/scores' } }));
                 break;
             }
-            const sorted    = getSortedContexts();
+            // Each device has its own independent slot numbering — look up this
+            // button's position only among the other buttons on the same device.
+            const inst      = instances.get(context);
+            const sorted    = inst ? getSortedContextsForDevice(inst.device) : [];
             const slotIndex = sorted.indexOf(context);
             const game      = slotIndex >= 0 ? (allGames[slotIndex] || null) : null;
             if (game && game.gamePk) {
@@ -308,8 +326,8 @@ function handleEvent({ event, context, payload }) {
 // ── Sort contexts by fill order ───────────────────────────────────────────────
 // 'column' = column-major: top→bottom, left→right (default)
 // 'row'    = row-major:    left→right, top→bottom
-function getSortedContexts() {
-    return [...instances.keys()].sort((a, b) => {
+function sortByFillOrder(contexts) {
+    return contexts.sort((a, b) => {
         const ca = instances.get(a).coords;
         const cb = instances.get(b).coords;
         if (globalSortOrder === 'row') {
@@ -320,6 +338,28 @@ function getSortedContexts() {
         if (ca.column !== cb.column) return ca.column - cb.column;
         return ca.row - cb.row;
     });
+}
+
+// Buttons on the same physical or virtual Stream Deck, sorted by fill order.
+// Buttons with no known device (shouldn't normally happen) are grouped together
+// under a fallback key so they still render rather than being dropped.
+function getSortedContextsForDevice(device) {
+    const key = device || '__unknown__';
+    const contexts = [...instances.keys()].filter(ctx => (instances.get(ctx).device || '__unknown__') === key);
+    return sortByFillOrder(contexts);
+}
+
+// Every known device id, in first-seen order — used to render each device's
+// board independently so a physical deck and a Virtual Stream Deck don't share
+// one combined game list.
+function getKnownDevices() {
+    const seen = new Set();
+    const order = [];
+    for (const ctx of instances.keys()) {
+        const key = instances.get(ctx).device || '__unknown__';
+        if (!seen.has(key)) { seen.add(key); order.push(key); }
+    }
+    return order;
 }
 
 // ── Refresh all buttons ───────────────────────────────────────────────────────
@@ -347,20 +387,27 @@ async function refreshAll() {
             ];
         }
 
-        const sorted   = getSortedContexts();
-        const overflow = allGames.length > sorted.length;
+        // Render each device's buttons as its own independent board — a physical
+        // deck and a Virtual Stream Deck each get the full game list starting from
+        // game 1, rather than splitting one combined list between them.
+        overflowContexts = new Set();
+        for (const device of getKnownDevices()) {
+            const sorted   = getSortedContextsForDevice(device === '__unknown__' ? null : device);
+            const overflow = allGames.length > sorted.length;
 
-        // If there are more games than buttons, reserve the last button as an overflow indicator
-        const gameSlots = overflow ? sorted.length - 1 : sorted.length;
-        overflowContext = overflow ? sorted[sorted.length - 1] : null;
+            // If there are more games than buttons, reserve this device's last button as an overflow indicator
+            const gameSlots = overflow ? sorted.length - 1 : sorted.length;
 
-        for (let i = 0; i < gameSlots; i++) {
-            renderButton(sorted[i], allGames[i] || null);
-        }
+            for (let i = 0; i < gameSlots; i++) {
+                renderButton(sorted[i], allGames[i] || null);
+            }
 
-        if (overflow) {
-            const extra = allGames.length - gameSlots;
-            renderOverflow(overflowContext, extra);
+            if (overflow) {
+                const overflowContext = sorted[sorted.length - 1];
+                overflowContexts.add(overflowContext);
+                const extra = allGames.length - gameSlots;
+                renderOverflow(overflowContext, extra);
+            }
         }
     } catch (err) {
         log('refreshAll error:', err.message);
