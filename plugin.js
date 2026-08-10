@@ -499,6 +499,7 @@ function buildLines(game) {
         case 'ppd':        return [game.matchup, { text: 'PPD' + gl,   fs: gl ? 13 : 16, color: '#E74C3C' }];
         case 'susp':       return [game.matchup, { text: 'SUSP' + gl,  fs: gl ? 13 : 16, color: '#E74C3C' }];
         case 'delay':      return [game.matchup, game.time, { text: 'DELAY' + gl, fs: gl ? 10 : 13, color: '#3498DB' }];
+        case 'warmup':     return [game.matchup, game.time, { text: 'WARMUP' + gl, fs: gl ? 9 : 12, color: '#2ECC71' }];
         case 'delay-live': return [
             { text: game.awayAbbr + ' ' + game.awayRuns, fs: 18 },
             { text: game.homeAbbr + ' ' + game.homeRuns, fs: 18 },
@@ -573,10 +574,11 @@ function buildGameUrl(game, linkType) {
                  : (game.state === 'live' || game.state === 'delay-live') ? 'live'
                  : 'preview';
     if (linkType === 'tv' && !isAllStarGame) {
-        // Only send to MLB.tv once the game has actually started — checking elapsed time
-        // against the scheduled start breaks down on a rain delay, where the clock passes
-        // first pitch but the game (and stream) hasn't begun yet.
-        const gameStarted = game.state === 'live' || game.state === 'delay-live' || game.state === 'final';
+        // Only send to MLB.tv once the game has actually started (or is in Warmup, which MLB.tv
+        // already carries as pre-game coverage) — checking elapsed time against the scheduled
+        // start breaks down on a rain delay, where the clock passes first pitch but the game
+        // (and stream) hasn't begun yet.
+        const gameStarted = game.state === 'live' || game.state === 'delay-live' || game.state === 'final' || game.state === 'warmup';
         if (!gameStarted) {
             log('TV requested but game has not started (state=' + game.state + ') — falling back to Gameday');
             return `https://www.mlb.com/gameday/${away}-vs-${home}/${game.gameDate}/${game.gamePk}/${suffix}`;
@@ -668,8 +670,14 @@ function parseAllGames(data) {
 
             // The API flips abstractGameState to "Live" during pre-game warmups before first pitch.
             // Keep showing the start time until play actually begins.
-            if (detailed === 'Pre-Game' || detailed === 'Warmup') {
+            if (detailed === 'Pre-Game') {
                 return { state: 'preview', matchup, time: fmtTime(startISO), gamePk, gameDate, startISO, homeId, awayId, gameLabel };
+            }
+            // Warmup means the game (possibly just coming out of a rain delay) is about to start —
+            // the original scheduled time is stale at this point, so label it explicitly instead
+            // of showing a clock that's already passed.
+            if (detailed === 'Warmup') {
+                return { state: 'warmup', matchup, time: fmtTime(startISO), gamePk, gameDate, startISO, homeId, awayId, gameLabel };
             }
 
             const homeRuns = ls?.teams?.home?.runs ?? 0;

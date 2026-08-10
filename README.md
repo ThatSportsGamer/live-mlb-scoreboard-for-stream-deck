@@ -4,7 +4,7 @@
 
 A Stream Deck plugin that displays today's full MLB schedule across multiple buttons — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 15 or more keys.
 
-![Live MLB Scoreboard Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.21-green)
+![Live MLB Scoreboard Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.23-green)
 
 ---
 
@@ -70,6 +70,12 @@ During **Spring Training**, Split Squad days can push the total above 15 — con
 ---
 
 ## Recent Updates
+
+**v1.0.23.0**
+- Fixed: pressing a button set to MLB.tv during the Warmup state (right before first pitch, including right after a rain delay clears) fell back to Gameday instead of opening the stream — MLB.tv already carries Warmup as pre-game coverage, so it now opens directly
+
+**v1.0.22.0**
+- Coming out of a rain delay, buttons now show `WARMUP` alongside the original scheduled time instead of just re-displaying that now-stale clock as if nothing happened
 
 **v1.0.21.0**
 - Each Stream Deck device (physical or virtual) now gets its own independent board — buttons on a physical deck and a Virtual Stream Deck no longer compete for the same slots in one combined game list; each shows the full schedule starting from game 1
