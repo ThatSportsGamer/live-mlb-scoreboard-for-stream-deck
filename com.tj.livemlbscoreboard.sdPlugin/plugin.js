@@ -340,8 +340,8 @@ function sortByFillOrder(contexts) {
     });
 }
 
-// Buttons on the same physical or virtual Stream Deck, sorted by fill order.
-// Buttons with no known device (shouldn't normally happen) are grouped together
+// Keys on the same physical or virtual Stream Deck, sorted by fill order.
+// Keys with no known device (shouldn't normally happen) are grouped together
 // under a fallback key so they still render rather than being dropped.
 function getSortedContextsForDevice(device) {
     const key = device || '__unknown__';

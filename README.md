@@ -2,7 +2,7 @@
 
 ![Live MLB Scoreboard Plugin](screenshots/LiveMLBScoreboardInAction.png)
 
-A Stream Deck plugin that displays today's full MLB schedule across multiple buttons — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 15 or more keys.
+A Stream Deck plugin that displays today's full MLB schedule across multiple keys — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 15 or more keys.
 
 ![Live MLB Scoreboard Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.23-green)
 
@@ -10,17 +10,17 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple but
 
 ## Features
 
-- **Full day at a glance** — every game on today's schedule gets its own button
+- **Full day at a glance** — every game on today's schedule gets its own key
 - **Live scores** — shows away score, home score, and current inning while a game is in progress
 - **Pre-game** — shows the matchup (e.g. `NYM @ LAD`) and scheduled start time
 - **Final scores** — shows the final score with a "Final" label
-- **Score-change flash** — when a team scores, that game's button flashes in the scoring team's primary color
+- **Score-change flash** — when a team scores, that game's key flashes in the scoring team's primary color
 - **Special states** — postponed games show `PPD`, suspended games show `SUSP`, rain delays show `DELAY`
-- **Doubleheader support** — both games each get their own button with G1/G2 labels so you always know which game is which
-- **Browser shortcut** — press any button to open that game in MLB Gameday or MLB.tv
-- **Overflow indicator** — if there are more games than buttons, the last button shows how many are off-screen and opens MLB Scores on press
-- **No-flicker updates** — buttons only redraw when the display actually changes
-- **Shared settings** — fill order, link type, and finals placement apply to all buttons at once
+- **Doubleheader support** — both games each get their own key with G1/G2 labels so you always know which game is which
+- **Browser shortcut** — press any key to open that game in MLB Gameday or MLB.tv
+- **Overflow indicator** — if there are more games than keys, the last key shows how many are off-screen and opens MLB Scores on press
+- **No-flicker updates** — keys only redraw when the display actually changes
+- **Shared settings** — fill order, link type, and finals placement apply to all keys at once
 - **Completed games to the end** — optionally push finished games to the back of the list so live and upcoming games stay up front
 - **Multi-device support** — a physical Stream Deck and a Virtual Stream Deck (or any combination of connected devices) each get their own independent board, starting from game 1, instead of splitting one combined list between them
 
@@ -45,19 +45,19 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple but
 
 ## Setup
 
-1. Drag the **Live MLB Scoreboard** action onto as many buttons as you want
+1. Drag the **Live MLB Scoreboard** action onto as many keys as you want
 2. In the settings panel, choose your fill order:
    - **Top-to-bottom, left-to-right** (default) — fills each column before moving to the next
    - **Left-to-right, top-to-bottom** — fills each row before moving to the next
-3. In the settings panel, choose what happens when you press a button:
+3. In the settings panel, choose what happens when you press a key:
    - **MLB Gameday (free)** — opens the game's live Gameday page in your browser
    - **MLB.tv (subscription)** — opens the game's MLB.tv broadcast page
 
 ![Settings pane](screenshots/LiveMLBScoreboardSettingsPane.png)
 
-That's it. All buttons will populate within a few seconds and refresh automatically every 30 seconds.
+That's it. All keys will populate within a few seconds and refresh automatically every 30 seconds.
 
-> **Note:** If MLB.tv is selected but the game hasn't started yet (and is more than 60 minutes away), pressing the button will open Gameday instead.
+> **Note:** If MLB.tv is selected but the game hasn't started yet (and is more than 60 minutes away), pressing the key will open Gameday instead.
 
 ---
 
@@ -72,22 +72,22 @@ During **Spring Training**, Split Squad days can push the total above 15 — con
 ## Recent Updates
 
 **v1.0.23.0**
-- Fixed: pressing a button set to MLB.tv during the Warmup state (right before first pitch, including right after a rain delay clears) fell back to Gameday instead of opening the stream — MLB.tv already carries Warmup as pre-game coverage, so it now opens directly
+- Fixed: pressing a key set to MLB.tv during the Warmup state (right before first pitch, including right after a rain delay clears) fell back to Gameday instead of opening the stream — MLB.tv already carries Warmup as pre-game coverage, so it now opens directly
 
 **v1.0.22.0**
-- Coming out of a rain delay, buttons now show `WARMUP` alongside the original scheduled time instead of just re-displaying that now-stale clock as if nothing happened
+- Coming out of a rain delay, keys now show `WARMUP` alongside the original scheduled time instead of just re-displaying that now-stale clock as if nothing happened
 
 **v1.0.21.0**
-- Each Stream Deck device (physical or virtual) now gets its own independent board — buttons on a physical deck and a Virtual Stream Deck no longer compete for the same slots in one combined game list; each shows the full schedule starting from game 1
+- Each Stream Deck device (physical or virtual) now gets its own independent board — keys on a physical deck and a Virtual Stream Deck no longer compete for the same slots in one combined game list; each shows the full schedule starting from game 1
 
 **v1.0.20.0**
 - Fixed: a pre-game weather delay (e.g. "Delayed Start") could be misread as a mid-game delay because MLB's linescore data pre-populates a "Top 1" shell before first pitch — this in turn caused the previous fix's MLB.tv fallback check to think the game had started and open the stream early. Now checks the game's actual live/preview status instead
 
 **v1.0.19.0**
-- Fixed: pressing a button set to MLB.tv for a game delayed past its scheduled start time no longer opens the stream early — the plugin now checks the game's actual status instead of the clock, so a rain delay correctly falls back to Gameday until the game actually begins
+- Fixed: pressing a key set to MLB.tv for a game delayed past its scheduled start time no longer opens the stream early — the plugin now checks the game's actual status instead of the clock, so a rain delay correctly falls back to Gameday until the game actually begins
 
 **v1.0.18.0**
-- Fixed: Gameday links now use the correct URL suffix for the game's actual state — pressing a button for a game that hasn't started (preview, postponed, suspended, or pre-game delay) no longer sends you to a blank `/live` page
+- Fixed: Gameday links now use the correct URL suffix for the game's actual state — pressing a key for a game that hasn't started (preview, postponed, suspended, or pre-game delay) no longer sends you to a blank `/live` page
 
 **v1.0.17.0**
 - Fixed: Gameday links now use the correct calendar date for evening games — West Coast/Mountain teams whose game time crosses into the next UTC day were getting a link one day ahead of the real game
@@ -103,22 +103,22 @@ During **Spring Training**, Split Squad days can push the total above 15 — con
 - Fixed: the inning/out indicator row now stays centered when a G1 or G2 label is shown during doubleheaders
 
 **v1.0.13.0**
-- Pre-game delays now show the updated start time alongside the DELAY indicator — if the first pitch gets pushed back, the button reflects the new time within 30 seconds
+- Pre-game delays now show the updated start time alongside the DELAY indicator — if the first pitch gets pushed back, the key reflects the new time within 30 seconds
 
 **v1.0.12.0**
 - Fixed: All-Star Game now shows AL @ NL instead of MLB @ MLB
 
 **v1.0.11.0**
-- Doubleheader labels: when two teams play twice in a day, each game's button now shows G1 or G2 — in the inning indicator during live play, next to "Final" when the game ends, and as a third line before the game starts
+- Doubleheader labels: when two teams play twice in a day, each game's key now shows G1 or G2 — in the inning indicator during live play, next to "Final" when the game ends, and as a third line before the game starts
 
 **v1.0.10.0**
-- Fixed: buttons no longer switch to "Top 1" during pre-game warmups before first pitch — the matchup and start time stay visible until the game actually begins
+- Fixed: keys no longer switch to "Top 1" during pre-game warmups before first pitch — the matchup and start time stay visible until the game actually begins
 
 **v1.0.9.0**
 - Out indicators: two dots appear to the left of the inning — gray for unrecorded outs, red for recorded outs (inspired by classic out-of-town scoreboards)
 
 **v1.0.6.0**
-- Added overflow indicator: when there are more games than buttons, the last button shows how many games aren't displayed and opens MLB Scores on press
+- Added overflow indicator: when there are more games than keys, the last key shows how many games aren't displayed and opens MLB Scores on press
 
 **v1.0.5.0**
 - Added fill order setting: choose between top-to-bottom, left-to-right (default) or left-to-right, top-to-bottom
@@ -143,7 +143,7 @@ During **Spring Training**, Split Squad days can push the total above 15 — con
 
 ---
 
-## What the Buttons Show
+## What the Keys Show
 
 **Before the game:**
 ```
@@ -179,7 +179,7 @@ NYM @ LAD
 
 ## How It Works
 
-The plugin polls [MLB's free public Stats API](https://statsapi.mlb.com) once every 30 seconds — a single shared request for all buttons at once. Games are sorted by start time and distributed to buttons in column-major order (top-to-bottom, left-to-right). No API key or account is required. The plugin is fully self-contained and uses only Node.js built-in modules.
+The plugin polls [MLB's free public Stats API](https://statsapi.mlb.com) once every 30 seconds — a single shared request for all keys at once. Games are sorted by start time and distributed to keys in column-major order (top-to-bottom, left-to-right). No API key or account is required. The plugin is fully self-contained and uses only Node.js built-in modules.
 
 The schedule holds on the current day's games until 2 AM local time, so late-running games stay on the board until they finish.
 
@@ -187,7 +187,7 @@ The schedule holds on the current day's games until 2 AM local time, so late-run
 
 ## Uninstalling
 
-Open Stream Deck → Preferences → Plugins, select **Live MLB Scoreboard**, and click the **−** button.
+Open Stream Deck → Preferences → Plugins, select **Live MLB Scoreboard**, and click the **−** key.
 
 ---
 
