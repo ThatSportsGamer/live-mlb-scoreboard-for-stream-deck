@@ -4,7 +4,7 @@
 
 A Stream Deck plugin that displays today's full MLB schedule across multiple keys — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 15 or more keys.
 
-![Live MLB Scoreboard Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.23-green)
+![Live MLB Scoreboard Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.24-green) [![Elgato Marketplace](https://img.shields.io/badge/Elgato-Marketplace-black)](https://marketplace.elgato.com/product/live-mlb-scoreboard-c550e6e1-4161-49ec-9748-2b53dc164e31)
 
 ---
 
@@ -26,50 +26,13 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple key
 
 ---
 
-## Requirements
-
-- [Elgato Stream Deck](https://www.elgato.com/stream-deck) hardware (XL or Virtual Stream Deck recommended) or the [Stream Deck Mobile](https://www.elgato.com/stream-deck-mobile) app
-- [Stream Deck software](https://www.elgato.com/downloads) version 6.0 or later (Mac or Windows)
-- No account required to view scores — the plugin uses MLB's free public stats API
-- An MLB.tv subscription is required only if you choose the MLB.tv link option; Gameday is free
-
----
-
-## Installation
-
-1. Download the latest **`Live MLB Scoreboard.streamDeckPlugin`** from the [Releases](../../releases) page
-2. Double-click the file — Stream Deck will install it automatically
-3. The plugin will appear in the Stream Deck action picker under **Live MLB Scoreboard**
-
----
-
-## Setup
-
-1. Drag the **Live MLB Scoreboard** action onto as many keys as you want
-2. In the settings panel, choose your fill order:
-   - **Top-to-bottom, left-to-right** (default) — fills each column before moving to the next
-   - **Left-to-right, top-to-bottom** — fills each row before moving to the next
-3. In the settings panel, choose what happens when you press a key:
-   - **MLB Gameday (free)** — opens the game's live Gameday page in your browser
-   - **MLB.tv (subscription)** — opens the game's MLB.tv broadcast page
-
-![Settings pane](assets/LiveMLBScoreboardSettingsPane.png)
-
-That's it. All keys will populate within a few seconds and refresh automatically every 30 seconds.
-
-> **Note:** If MLB.tv is selected but the game hasn't started yet (and is more than 60 minutes away), pressing the key will open Gameday instead.
-
----
-
-## How Many Keys Do I Need?
-
-A full regular season day has up to **15 games**. The Stream Deck XL (32 keys) gives you plenty of room. A virtual Stream Deck works great too.
-
-During **Spring Training**, Split Squad days can push the total above 15 — consider adding extra keys to make sure you catch every game.
-
----
-
 ## Recent Updates
+
+**v1.0.24.0**
+- Added a high-resolution (@2x) plugin icon so it stays sharp on Retina/high-DPI displays
+- Plugin description now recommends 15 or more keys, matching a full regular-season slate
+- Removed a stray macOS system file from the installer
+- Turned off Node debug mode for release builds
 
 **v1.0.23.0**
 - Fixed: pressing a key set to MLB.tv during the Warmup state (right before first pitch, including right after a rain delay clears) fell back to Gameday instead of opening the stream — MLB.tv already carries Warmup as pre-game coverage, so it now opens directly
@@ -140,6 +103,55 @@ During **Spring Training**, Split Squad days can push the total above 15 — con
 **v1.0.1**
 - Inning indicator and "Final" label now display in yellow
 - End-of-game fireworks animation with the winning team's name and colors
+
+---
+
+## Requirements
+
+- [Elgato Stream Deck](https://www.elgato.com/stream-deck) hardware (XL or Virtual Stream Deck recommended) or the [Stream Deck Mobile](https://www.elgato.com/stream-deck-mobile) app
+- [Stream Deck software](https://www.elgato.com/downloads) version 6.0 or later (Mac or Windows)
+- No account required to view scores — the plugin uses MLB's free public stats API
+- An MLB.tv subscription is required only if you choose the MLB.tv link option; Gameday is free
+
+---
+
+## Installation
+
+**Elgato Marketplace (recommended)**
+
+1. Open **[Live MLB Scoreboard on the Elgato Marketplace](https://marketplace.elgato.com/product/live-mlb-scoreboard-c550e6e1-4161-49ec-9748-2b53dc164e31)** and install it from there
+2. The plugin will appear in the Stream Deck action picker under **Live MLB Scoreboard**
+
+**Manual install**
+
+1. Download the latest **`Live MLB Scoreboard.streamDeckPlugin`** from the [Releases](../../releases) page
+2. Double-click the file — Stream Deck will install it automatically
+
+---
+
+## Setup
+
+1. Drag the **Live MLB Scoreboard** action onto as many keys as you want
+2. In the settings panel, choose your fill order:
+   - **Top-to-bottom, left-to-right** (default) — fills each column before moving to the next
+   - **Left-to-right, top-to-bottom** — fills each row before moving to the next
+3. In the settings panel, choose what happens when you press a key:
+   - **MLB Gameday (free)** — opens the game's live Gameday page in your browser
+   - **MLB.tv (subscription)** — opens the game's MLB.tv broadcast page
+
+![Settings pane](assets/LiveMLBScoreboardSettingsPane.png)
+
+That's it. All keys will populate within a few seconds and refresh automatically every 30 seconds.
+
+> **Note:** If MLB.tv is selected but the game hasn't started yet (and is more than 60 minutes away), pressing the key will open Gameday instead.
+
+---
+
+## How Many Keys Do I Need?
+
+A full regular season day has up to **15 games**. The Stream Deck XL (32 keys) gives you plenty of room. A virtual Stream Deck works great too.
+
+During **Spring Training**, Split Squad days can push the total above 15 — consider adding extra keys to make sure you catch every game.
 
 ---
 
