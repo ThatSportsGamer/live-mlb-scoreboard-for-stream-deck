@@ -33,7 +33,7 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple key
 - Doubleheader keys (G1/G2) now use the same text sizes as Live MLB Scores
 
 **v1.0.24.0**
-- Added a high-resolution (@2x) plugin icon so it stays sharp on Retina/high-DPI displays
+- Added a high-resolution (2x) plugin icon so it stays sharp on Retina/high-DPI displays
 - Plugin description now recommends 15 or more keys, matching a full regular-season slate
 - Removed a stray macOS system file from the installer
 - Turned off Node debug mode for release builds
