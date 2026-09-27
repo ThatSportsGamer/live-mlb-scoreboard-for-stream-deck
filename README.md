@@ -4,7 +4,7 @@
 
 A Stream Deck plugin that displays today's full MLB schedule across multiple keys — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 15 or more keys.
 
-![Live MLB Scoreboard Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.24-green) [![Elgato Marketplace](https://img.shields.io/badge/Elgato-Marketplace-black)](https://marketplace.elgato.com/product/live-mlb-scoreboard-c550e6e1-4161-49ec-9748-2b53dc164e31)
+![Live MLB Scoreboard Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.25-green) [![Elgato Marketplace](https://img.shields.io/badge/Elgato-Marketplace-black)](https://marketplace.elgato.com/product/live-mlb-scoreboard-c550e6e1-4161-49ec-9748-2b53dc164e31)
 
 ---
 
@@ -27,6 +27,10 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple key
 ---
 
 ## Recent Updates
+
+**v1.0.25.0**
+- Rained-out games that MLB cancels outright now show CANC instead of a 0-0 "Final" (doubleheaders included)
+- Doubleheader keys (G1/G2) now use the same text sizes as Live MLB Scores
 
 **v1.0.24.0**
 - Added a high-resolution (@2x) plugin icon so it stays sharp on Retina/high-DPI displays
