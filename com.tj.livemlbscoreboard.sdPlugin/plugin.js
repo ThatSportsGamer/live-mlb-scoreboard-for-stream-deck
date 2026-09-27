@@ -496,14 +496,14 @@ function buildLines(game) {
             if (game.gameLabel) lines.push({ text: game.gameLabel, fs: 14, color: '#FFD700' });
             return lines;
         }
-        case 'ppd':        return [game.matchup, { text: 'PPD' + gl,   fs: gl ? 13 : 16, color: '#E74C3C' }];
-        case 'susp':       return [game.matchup, { text: 'SUSP' + gl,  fs: gl ? 13 : 16, color: '#E74C3C' }];
-        case 'delay':      return [game.matchup, game.time, { text: 'DELAY' + gl, fs: gl ? 10 : 13, color: '#3498DB' }];
-        case 'warmup':     return [game.matchup, game.time, { text: 'WARMUP' + gl, fs: gl ? 9 : 12, color: '#2ECC71' }];
+        case 'ppd':        return [game.matchup, { text: 'PPD' + gl,   fs: 16, color: '#E74C3C' }];
+        case 'susp':       return [game.matchup, { text: 'SUSP' + gl,  fs: gl ? 14 : 16, color: '#E74C3C' }];
+        case 'delay':      return [game.matchup, game.time, { text: 'DELAY' + gl, fs: gl ? 11 : 13, color: '#3498DB' }];
+        case 'warmup':     return [game.matchup, game.time, { text: 'WARMUP' + gl, fs: gl ? 10 : 12, color: '#2ECC71' }];
         case 'delay-live': return [
             { text: game.awayAbbr + ' ' + game.awayRuns, fs: 18 },
             { text: game.homeAbbr + ' ' + game.homeRuns, fs: 18 },
-            { text: 'DELAY' + gl,                         fs: gl ? 11 : 14, color: '#3498DB' },
+            { text: 'DELAY' + gl,                         fs: gl ? 13 : 14, color: '#3498DB' },
         ];
         case 'live':    return [
             { text: game.awayAbbr + ' ' + game.awayRuns, fs: 18 },
@@ -513,7 +513,7 @@ function buildLines(game) {
         case 'final':   return [
             { text: game.awayAbbr + ' ' + game.awayRuns, fs: 18 },
             { text: game.homeAbbr + ' ' + game.homeRuns, fs: 18 },
-            { text: 'Final' + gl,                         fs: gl ? 12 : 14, color: '#FFD700' },
+            { text: 'Final' + gl,                         fs: gl ? 13 : 14, color: '#FFD700' },
         ];
         default: return ['MLB', '---'];
     }
