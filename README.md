@@ -161,7 +161,7 @@ During **Spring Training**, Split Squad days can push the total above 15 — con
 
 ## What the Keys Show
 
-![Live MLB Scoreboard on a Stream Deck XL](assets/LiveMLBScoreboardInAction.png)
+![Live MLB Scoreboard showing a full 15-game slate](assets/LiveMLBScoreboardInAction.png)
 
 **Before the game:**
 ```
