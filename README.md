@@ -4,7 +4,7 @@
 
 A Stream Deck plugin that displays today's full MLB schedule across multiple keys — one game per key, updating live every 30 seconds. Designed for the Stream Deck XL or any setup with 15 or more keys.
 
-![Live MLB Scoreboard Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.25-green) [![Elgato Marketplace](https://img.shields.io/badge/Elgato-Marketplace-black)](https://marketplace.elgato.com/product/live-mlb-scoreboard-c550e6e1-4161-49ec-9748-2b53dc164e31)
+![Live MLB Scoreboard Plugin](https://img.shields.io/badge/Stream%20Deck-Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.26-green) [![Elgato Marketplace](https://img.shields.io/badge/Elgato-Marketplace-black)](https://marketplace.elgato.com/product/live-mlb-scoreboard-c550e6e1-4161-49ec-9748-2b53dc164e31)
 
 ---
 
@@ -14,7 +14,7 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple key
 - **Live scores** — shows away score, home score, and current inning while a game is in progress
 - **Pre-game** — shows the matchup (e.g. `NYM @ LAD`) and scheduled start time
 - **Final scores** — shows the final score with a "Final" label
-- **Score-change flash** — when a team scores, that game's key flashes in the scoring team's primary color
+- **Score-change flash** — when a team scores, that game's key blinks in the scoring team's primary color, then shows a short card with the team and how many runs scored (e.g. ATL / +2 RUNS)
 - **Special states** — postponed games show `PPD`, suspended games show `SUSP`, rain delays show `DELAY`
 - **Doubleheader support** — both games each get their own key with G1/G2 labels so you always know which game is which
 - **Browser shortcut** — press any key to open that game in MLB Gameday or MLB.tv
@@ -27,6 +27,11 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple key
 ---
 
 ## Recent Updates
+
+**v1.0.26.0**
+- Score flash is now 5 solid blinks of the scoring team's color with no text, so it reads at a glance even on light team colors
+- New: right after the flash, a 3-second card shows the scoring team and how many runs scored (e.g. ATL / +2 RUNS), then the score returns
+- Settings help text now says "key" instead of "button"
 
 **v1.0.25.0**
 - Rained-out games that MLB cancels outright now show CANC instead of a 0-0 "Final" (doubleheaders included)

@@ -450,8 +450,13 @@ function renderButton(context, game) {
                     const color = (awayScored && homeScored) ? '#FFFFFF'
                         : awayScored ? teamColor(game.awayId)
                                      : teamColor(game.homeId);
+                    // Runs card (one team only — both teams scoring between polls
+                    // only happens after missed polls, so that just flashes)
+                    const card = (awayScored && homeScored) ? null
+                        : awayScored ? runsCardLines(game.awayAbbr, game.awayRuns - prev.awayRuns)
+                                     : runsCardLines(game.homeAbbr, game.homeRuns - prev.homeRuns);
                     log('Score change — ' + game.matchup + ' — flashing', color);
-                    flashButton(context, color, lines, spacing).catch(e => log('flash error:', e.message));
+                    flashButton(context, color, lines, spacing, card).catch(e => log('flash error:', e.message));
                     return;
                 }
             }
@@ -825,16 +830,35 @@ function setButton(context, lines, lineSpacing, bgColor) {
 
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
-async function flashButton(context, color, lines, spacing) {
+// Runs card shown after the score flash: scoring team (white) / "+# RUNS"
+// (yellow), always on a black key. Fixed sizes so every card looks the same —
+// "+1 RUN" through "+9 RUNS" all fit at 14pt; only +10 or more shrinks.
+const RUNS_CARD_MS = 3000;
+
+function runsCardLines(abbr, runs) {
+    if (!abbr || !(runs > 0)) return null;
+    const r   = '+' + runs + (runs === 1 ? ' RUN' : ' RUNS');
+    const rfs = r.length <= 7 ? 14 : Math.floor(62 / (r.length * 0.62));
+    const tfs = Math.min(24, Math.floor(64 / (abbr.length * 0.62)));
+    return [{ text: abbr, fs: tfs }, { text: r, fs: rfs, color: '#FFD700' }];
+}
+
+// Score flash: 5 solid blinks of the color with no text (2.0 s), then the
+// runs card for 3 s if there is one, then back to the score.
+async function flashButton(context, color, lines, spacing, card = null) {
     if (flashing.has(context)) return;
     flashing.add(context);
-    log('→ flash', color);
+    log('→ flash', color, card ? JSON.stringify(card) : '');
     try {
-        for (let i = 0; i < 4; i++) {
-            setButton(context, lines, spacing, color);
+        for (let i = 0; i < 5; i++) {
+            setButton(context, [''], spacing, color);
             await sleep(200);
-            setButton(context, lines, spacing, 'black');
+            setButton(context, [''], spacing, 'black');
             await sleep(200);
+        }
+        if (card) {
+            setButton(context, card, 1.3, 'black');
+            await sleep(RUNS_CARD_MS);
         }
     } finally {
         flashing.delete(context);
