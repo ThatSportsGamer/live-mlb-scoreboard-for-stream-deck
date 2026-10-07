@@ -259,8 +259,20 @@ function handleEvent({ event, context, payload, device, deviceInfo: devInfo }) {
             break;
         }
 
-        case 'willDisappear':
+        case 'willDisappear': {
+            const gone = instances.get(context);
             instances.delete(context);
+            // Last Scoreboard key on this deck left (page/profile switch): forget
+            // its scores and game states, so coming back just shows the current
+            // scores — no catch-up flash, runs card or fireworks for what happened
+            // while away (same as the single-team plugins).
+            const dev = (gone && gone.device) || '__unknown__';
+            const stillHere = [...instances.values()].some(i => (i.device || '__unknown__') === dev);
+            if (gone && !stillHere) {
+                const prefix = dev + '|';
+                for (const k of [...prevScores.keys()])     if (k.startsWith(prefix)) prevScores.delete(k);
+                for (const k of [...prevGameStates.keys()]) if (k.startsWith(prefix)) prevGameStates.delete(k);
+            }
             lastRender.delete(context);
             flashing.delete(context);
             if (instances.size === 0 && globalTimer) {
@@ -269,6 +281,7 @@ function handleEvent({ event, context, payload, device, deviceInfo: devInfo }) {
                 log('All buttons gone — timer stopped');
             }
             break;
+        }
 
         case 'didReceiveSettings': {
             const settings = (payload && payload.settings) || {};
