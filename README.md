@@ -32,6 +32,8 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple key
 - Score flash is now 5 solid blinks of the scoring team's color with no text, so it reads at a glance even on light team colors
 - New: right after the flash, a 3-second card shows the scoring team and how many runs scored (e.g. ATL / +2 RUNS), then the score returns
 - Settings help text now says "key" instead of "button"
+- Fixed: with Scoreboard keys on more than one Stream Deck (e.g. a physical deck plus a Virtual Stream Deck or Stream Deck Mobile), only one of them flashed for a run or played the end-of-game fireworks — now every deck does
+- Coming back to a page with Scoreboard keys now just shows the current scores, instead of replaying a flash or fireworks for what happened while you were on another page (matches the other plugins)
 
 **v1.0.25.0**
 - Rained-out games that MLB cancels outright now show CANC instead of a 0-0 "Final" (doubleheaders included)
