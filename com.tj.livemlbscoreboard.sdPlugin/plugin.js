@@ -169,9 +169,9 @@ class SimpleWS extends events.EventEmitter {
 // ── Plugin state ──────────────────────────────────────────────────────────────
 // context -> { coords: { row, column }, settings: {}, device }
 const instances  = new Map();
-// gamePk -> { awayRuns, homeRuns } — tracks score changes for flash
+// "<device>|<gamePk>" -> { awayRuns, homeRuns } — tracks score changes for flash (per device)
 const prevScores = new Map();
-// gamePk -> last known game state string — tracks live → final transitions
+// "<device>|<gamePk>" -> last known game state — tracks live → final transitions (per device)
 const prevGameStates = new Map();
 // contexts currently mid-flash animation
 const flashing   = new Set();
@@ -375,8 +375,11 @@ async function refreshAll() {
         // rolled off after the 2am cutoff) so these maps don't grow indefinitely
         // across days on a long-running plugin process.
         const liveGamePks = new Set(allGames.map(g => g.gamePk));
-        for (const pk of prevScores.keys())      if (!liveGamePks.has(pk)) prevScores.delete(pk);
-        for (const pk of prevGameStates.keys())  if (!liveGamePks.has(pk)) prevGameStates.delete(pk);
+        // (keys are "<device>|<gamePk>" — see gameKey)
+        const livePkStr = new Set([...liveGamePks].map(String));
+        const pkOf = k => String(k).split('|').pop();
+        for (const k of prevScores.keys())      if (!livePkStr.has(pkOf(k))) prevScores.delete(k);
+        for (const k of prevGameStates.keys())  if (!livePkStr.has(pkOf(k))) prevGameStates.delete(k);
 
         // Optionally push completed games to the end of the list, keeping
         // each group's internal order (by start time) intact.
@@ -419,6 +422,11 @@ async function refreshAll() {
     }
 }
 
+function gameKey(context, gamePk) {
+    const dev = (instances.get(context) || {}).device || '__unknown__';
+    return dev + '|' + gamePk;
+}
+
 // ── Render one button ─────────────────────────────────────────────────────────
 function renderButton(context, game) {
     if (flashing.has(context)) return;
@@ -427,8 +435,13 @@ function renderButton(context, game) {
     const spacing = lines.some(l => typeof l === 'object') ? 1.2 : 1.4;
 
     if (game && game.gamePk) {
-        const prevGameState = prevGameStates.get(game.gamePk);
-        prevGameStates.set(game.gamePk, game.state);
+        // Per-device key: a game shown on both a physical deck and a Virtual
+        // Stream Deck is tracked separately for each, so both get the flash,
+        // runs card and fireworks (one shared key let the first device's render
+        // swallow the change for the second).
+        const gk = gameKey(context, game.gamePk);
+        const prevGameState = prevGameStates.get(gk);
+        prevGameStates.set(gk, game.state);
 
         // Detect live → final transition and play fireworks
         if (prevGameState === 'live' && game.state === 'final') {
@@ -441,8 +454,8 @@ function renderButton(context, game) {
 
         // Detect score change on live games and flash in the scoring team's color
         if (game.state === 'live') {
-            const prev = prevScores.get(game.gamePk);
-            prevScores.set(game.gamePk, { awayRuns: game.awayRuns, homeRuns: game.homeRuns });
+            const prev = prevScores.get(gk);
+            prevScores.set(gk, { awayRuns: game.awayRuns, homeRuns: game.homeRuns });
             if (prev) {
                 const awayScored = game.awayRuns > prev.awayRuns;
                 const homeScored = game.homeRuns > prev.homeRuns;
@@ -461,7 +474,7 @@ function renderButton(context, game) {
                 }
             }
         } else {
-            prevScores.delete(game.gamePk);
+            prevScores.delete(gk);
         }
     }
 
