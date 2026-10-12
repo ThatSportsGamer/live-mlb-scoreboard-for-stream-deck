@@ -21,7 +21,7 @@ A Stream Deck plugin that displays today's full MLB schedule across multiple key
 - **Overflow indicator** — if there are more games than keys, the last key shows how many are off-screen and opens MLB Scores on press
 - **No-flicker updates** — keys only redraw when the display actually changes
 - **Shared settings** — fill order, link type, and finals placement apply to all keys at once
-- **Completed games to the end** — optionally push finished games to the back of the list so live and upcoming games stay up front
+- **Completed games to the end** — optionally push finished games to the back of the list so live and upcoming games stay up front. **Tip for smaller Stream Decks** (Mini, Neo, a 15-key MK.2): turn this on, so live and upcoming games keep their keys and finished games move to the `+N more` key.
 - **Multi-device support** — a physical Stream Deck and a Virtual Stream Deck (or any combination of connected devices) each get their own independent board, starting from game 1, instead of splitting one combined list between them
 
 ---
